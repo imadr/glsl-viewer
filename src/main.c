@@ -119,8 +119,8 @@ u8 check_file_modified(FileWatch file_watch){
     i32 rc = poll(file_watch.file_descriptors_set, 1, 0);
     char buffer[4096];
     while(1){
-        u32 len = read(file_watch.file_descriptor, buffer, sizeof(buffer));
-        if(len <= 0){
+        i32 len = read(file_watch.file_descriptor, buffer, sizeof(buffer));
+        if(len < 0){
             return 0;
         }
         return 1;
@@ -129,9 +129,10 @@ u8 check_file_modified(FileWatch file_watch){
 #endif
 }
 
-u32 uniforms_locations[1] = {0};
+u32 uniforms_locations[2] = {0};
 void reload_uniforms(u32 program){
     uniforms_locations[0] = glGetUniformLocation(program, "time");
+    uniforms_locations[1] = glGetUniformLocation(program, "resolution");
 }
 
 i32 main(){
@@ -196,6 +197,7 @@ i32 main(){
         glBindVertexArray(vao);
 
         u8 shader_modified = check_file_modified(shader_file_watch);
+
         if(shader_modified){
             glDeleteShader(program);
             program = opengl_load_shader("vertex.glsl", shader_filename);
@@ -207,6 +209,9 @@ i32 main(){
         if(program != 0){
             glUseProgram(program);
             glUniform1f(uniforms_locations[0], ((float)get_time()-start_time)/1000000);
+            glUniform2f(uniforms_locations[1],
+                (float)current_window_size.width,
+                (float)current_window_size.height);
             glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
         }
         opengl_swap_buffers();

@@ -28,3 +28,4 @@ The following uniforms are supported:
 | Type | Name  | Description |
 | - | - | - |
 | float | time  | Number of seconds since start |
+| vec2 | resolution  | Viewport resolution (width, height) |

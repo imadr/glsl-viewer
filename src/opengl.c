@@ -22,6 +22,7 @@ glGenVertexArrays_TYPE glGenVertexArrays;
 glBindVertexArray_TYPE glBindVertexArray;
 glUniformMatrix4fv_TYPE glUniformMatrix4fv;
 glUniform3fv_TYPE glUniform3fv;
+glUniform2f_TYPE glUniform2f;
 glUniform1f_TYPE glUniform1f;
 glUniform1i_TYPE glUniform1i;
 glGetUniformLocation_TYPE glGetUniformLocation;
@@ -87,6 +88,8 @@ static u8 load_opengl_functions(){
     if(glUniformMatrix4fv == NULL) return 1;
     glUniform3fv = (glUniform3fv_TYPE)get_proc_address("glUniform3fv");
     if(glUniform3fv == NULL) return 1;
+    glUniform2f = (glUniform2f_TYPE)get_proc_address("glUniform2f");
+    if(glUniform2f == NULL) return 1;
     glUniform1f = (glUniform1f_TYPE)get_proc_address("glUniform1f");
     if(glUniform1f == NULL) return 1;
     glUniform1i = (glUniform1i_TYPE)get_proc_address("glUniform1i");
