@@ -29,3 +29,4 @@ The following uniforms are supported:
 | - | - | - |
 | float | time  | Number of seconds since start |
 | vec2 | resolution  | Viewport resolution (width, height) |
+| vec2 | mouse  | Current mouse position |

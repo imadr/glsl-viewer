@@ -34,10 +34,6 @@ void keyboard_callback(u32 keycode, KeyState key_state){
     }
 }
 
-void mouse_callback(MouseMove mouse_move){
-    (void)mouse_move;
-}
-
 #ifdef _WIN32
 
 typedef struct FileWatch{
@@ -129,10 +125,11 @@ u8 check_file_modified(FileWatch file_watch){
 #endif
 }
 
-u32 uniforms_locations[2] = {0};
-void reload_uniforms(u32 program){
+u32 uniforms_locations[3] = {0};
+void reload_uniforms_locations(u32 program){
     uniforms_locations[0] = glGetUniformLocation(program, "time");
     uniforms_locations[1] = glGetUniformLocation(program, "resolution");
+    uniforms_locations[2] = glGetUniformLocation(program, "mouse");
 }
 
 i32 main(){
@@ -149,7 +146,6 @@ i32 main(){
 
     window_set_resize_callback(resize_callback);
     window_set_keyboard_callback(keyboard_callback);
-    window_set_mouse_callback(mouse_callback);
 
     opengl_set_viewport(0, 0, current_window_size.width, current_window_size.height);
 
@@ -181,7 +177,7 @@ i32 main(){
 
     u32 program = opengl_load_shader("vertex.glsl", shader_filename);
     if(program){
-        reload_uniforms(program);
+        reload_uniforms_locations(program);
     }
 
     FileWatch shader_file_watch = set_file_watch(shader_filename);
@@ -202,7 +198,7 @@ i32 main(){
             glDeleteShader(program);
             program = opengl_load_shader("vertex.glsl", shader_filename);
             if(program){
-                reload_uniforms(program);
+                reload_uniforms_locations(program);
             }
         }
 
@@ -212,6 +208,10 @@ i32 main(){
             glUniform2f(uniforms_locations[1],
                 (float)current_window_size.width,
                 (float)current_window_size.height);
+            glUniform2f(uniforms_locations[2],
+                (float)mouse_position.x,
+                (float)mouse_position.y);
+
             glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
         }
         opengl_swap_buffers();

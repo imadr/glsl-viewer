@@ -5,11 +5,11 @@ WindowSize current_window_size;
 WindowSize original_window_size;
 
 KeyState keyboard[MAX_KEYCODES] = {RELEASED};
+MousePosition mouse_position;
 
 void empty_callback(){};
 static void (*resize_callback)() = (void(*)())empty_callback;
 static void (*keyboard_callback)(u32, KeyState) = (void(*)(u32, KeyState))empty_callback;
-static void (*mouse_callback)(MouseMove) = (void(*)(MouseMove))empty_callback;
 
 void window_set_resize_callback(void (*callback)()){
     resize_callback = callback;
@@ -17,10 +17,6 @@ void window_set_resize_callback(void (*callback)()){
 
 void window_set_keyboard_callback(void (*callback)(u32, KeyState)){
     keyboard_callback = callback;
-}
-
-void window_set_mouse_callback(void (*callback)(MouseMove)){
-    mouse_callback = callback;
 }
 
 #ifdef _WIN32
@@ -62,15 +58,8 @@ static LRESULT CALLBACK window_procedure(HWND window_handle, UINT message, WPARA
             keyboard_callback(w_param, RELEASED);
             keyboard[w_param] = RELEASED;
             break;
-        case WM_INPUT:
-            {
-                UINT size = sizeof(RAWINPUT);
-                RAWINPUT raw_input[sizeof(RAWINPUT)];
-                GetRawInputData((HRAWINPUT)l_param, RID_INPUT, raw_input, &size, sizeof(RAWINPUTHEADER));
-                if(raw_input->header.dwType == RIM_TYPEMOUSE){
-                    mouse_callback((MouseMove){raw_input->data.mouse.lLastX, raw_input->data.mouse.lLastY});
-                }
-            }
+        case WM_MOUSEMOVE:
+            mouse_position = (MousePosition){GET_X_LPARAM(l_param), GET_Y_LPARAM(l_param)};
             break;
         case WM_CLOSE:
             window_close();
@@ -142,16 +131,6 @@ u8 window_create(const char* title, u32 width, u32 height){
     ShowWindow(window_handle, 5);
 
     ShowCursor(1);
-
-    RAWINPUTDEVICE raw_input_device[1];
-    raw_input_device[0].usUsagePage = HID_USAGE_PAGE_GENERIC;
-    raw_input_device[0].usUsage = HID_USAGE_GENERIC_MOUSE;
-    raw_input_device[0].dwFlags = RIDEV_INPUTSINK;
-    raw_input_device[0].hwndTarget = window_handle;
-    if(!RegisterRawInputDevices(raw_input_device, 1, sizeof(raw_input_device[0]))){
-        win32_print_last_error("RegisterRawInputDevices:");
-        return 1;
-    }
 
     return 0;
 }
@@ -251,17 +230,6 @@ u8 window_create(const char* title, u32 width, u32 height){
         warn("XIQueryVersion didn't return 2.0");
     }
 
-    // @Note we shouldn't do this if XInput isn't available, add a mouse fallback using MotionNotify
-    XIEventMask event_mask;
-    u8 mask[XIMaskLen(XI_RawMotion)] = { 0 };
-    event_mask.deviceid = XIAllMasterDevices;
-    event_mask.mask_len = sizeof(mask);
-    event_mask.mask = mask;
-    XISetMask(mask, XI_RawMotion);
-    i32 screen = DefaultScreen(display);
-    Window root = RootWindow(display, screen);
-    XISelectEvents(display, root, &event_mask, 1);
-
     return 0;
 }
 
@@ -292,12 +260,8 @@ u8 window_event(){
             keyboard_callback(event.xkey.keycode, RELEASED);
             keyboard[event.xkey.keycode] = RELEASED;
         }
-        else if(event.type == GenericEvent){
-            if(XGetEventData(display, &event.xcookie)){
-                XIRawEvent* raw_event = event.xcookie.data;
-                f64* raw_values = raw_event->raw_values;
-                mouse_callback((MouseMove){(i32)raw_values[0], (i32)raw_values[1]});
-            }
+        else if(event.type == MotionNotify){
+            mouse_position = (MousePosition){event.xmotion.x, event.xmotion.y};
         }
         else if(event.type == ConfigureNotify){
             current_window_size.width = event.xconfigure.width;
