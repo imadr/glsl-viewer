@@ -12,7 +12,7 @@
 #ifdef _WIN32
 
 #include <windows.h>
-#include <GL/gl.h>
+// #include <GL/gl.h>
 
 #elif __linux__
 
@@ -32,6 +32,7 @@ void opengl_set_swap_interval(u32 interval);
 void opengl_set_viewport(u32 x, u32 y, u32 width, u32 height);
 void opengl_clear(RGBA clear_color);
 
+#define GL_UNSIGNED_INT 0x1405
 #define GL_FLOAT_VEC2 0x8B50
 #define GL_FLOAT_VEC3 0x8B51
 #define GL_FLOAT_VEC4 0x8B52
@@ -123,6 +124,14 @@ typedef char GLcharARB;
 #if defined(_WIN32) && !defined(GLsizeiptr)
 typedef size_t GLsizeiptr;
 #endif
+
+extern void APIENTRY* glClear(GLbitfield);
+extern void APIENTRY* glClearColor(GLfloat, GLfloat, GLfloat, GLfloat);
+extern void APIENTRY* glViewport(GLint, GLint, GLsizei, GLsizei);
+extern void APIENTRY* glGetIntegerv(GLenum , GLint*);
+extern void APIENTRY* glDrawElements(GLenum, GLsizei, GLenum, const void*);
+extern void APIENTRY* glEnable(GLenum);
+extern void APIENTRY* glDisable(GLenum);
 
 typedef GLuint (APIENTRY* glCreateShader_TYPE)(GLenum);
 typedef void (APIENTRY* glShaderSource_TYPE)(GLuint, GLsizei, const GLchar**, const GLint*);

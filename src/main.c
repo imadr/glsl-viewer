@@ -7,11 +7,11 @@
 
 #include <stdio.h>
 #include <math.h>
-#include <unistd.h>
 
 #ifdef _WIN32
 #include <windows.h>
 #elif __linux__
+#include <unistd.h>
 #include <poll.h>
 #include <sys/inotify.h>
 #endif

@@ -374,6 +374,7 @@ u8 opengl_init(i32 opengl_major_version, i32 opengl_minor_version, u32 multisamp
     }
 
     err = load_opengl_functions();
+
     if(err){
         win32_print_last_error("load_opengl_functions:");
         return 1;
@@ -381,6 +382,7 @@ u8 opengl_init(i32 opengl_major_version, i32 opengl_minor_version, u32 multisamp
 
     i32 major;
     i32 minor;
+
     glGetIntegerv(GL_MAJOR_VERSION, &major);
     glGetIntegerv(GL_MINOR_VERSION, &minor);
     if(major != opengl_major_version || minor != opengl_minor_version){
@@ -388,7 +390,6 @@ u8 opengl_init(i32 opengl_major_version, i32 opengl_minor_version, u32 multisamp
     }
 
     info("Loaded OpenGL context %d.%d", major, minor);
-
     check_opengl_extensions();
 
     return 0;

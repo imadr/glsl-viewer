@@ -7,9 +7,11 @@ if %1==clang goto clang
 
 :gcc
 gcc.exe *.c -Ofast -lopengl32 -luser32 -lgdi32 -o glsl-viewer.exe
+goto end
 
 :tcc
 tcc.exe *.c -lgdi32 -luser32 -lopengl32 -o glsl-viewer.exe
+goto end
 
 :msvc
 if not defined DevEnvDir (
@@ -17,11 +19,12 @@ if not defined DevEnvDir (
 )
 cl *.c /Ox user32.lib gdi32.lib Opengl32.lib /Feglsl-viewer.exe
 del *.obj
+goto end
 
 :clang
 clang.exe *.c -lgdi32 -luser32 -lopengl32 -o glsl-viewer.exe
-
 goto end
+
 :usage
 echo usage: build_windows.bat [gcc ^| tcc ^| msvc ^| clang]
 :end

@@ -45,7 +45,10 @@ void window_set_state(WindowState state);
 #ifdef _WIN32
 
 #include <windows.h>
-#include <windowsx.h>
+
+#define GET_X_LPARAM(lp) ((int)(short)LOWORD(lp))
+#define GET_Y_LPARAM(lp) ((int)(short)HIWORD(lp))
+WINBASEAPI int WINAPI MultiByteToWideChar(UINT,DWORD,LPCSTR,int,LPWSTR,int);
 
 extern HDC device_context;
 extern HWND window_handle;
